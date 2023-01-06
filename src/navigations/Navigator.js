@@ -6,6 +6,7 @@ import Scooter from '../screens/Scooter';
 import Home from '../screens/Home';
 import Heart from '../screens/DoubleTapToHeart';
 import Travler from '../screens/Travler';
+import Login from '../screens/Login';
 
 const screenOptions = {
   headerShown: false,
@@ -23,6 +24,7 @@ const MyStack = () => {
       <Stack.Screen name="ScooterDetail" component={ScooterDetail} />
       <Stack.Screen name="Heart" component={Heart} />
       <Stack.Screen name="Travle" component={Travler} />
+      <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
   );
 };

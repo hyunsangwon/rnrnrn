@@ -13,6 +13,9 @@ const Home = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Travle')}>
         <Text style={styles.text}>Travle Here</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.text}>Animated Login Here</Text>
+      </TouchableOpacity>
     </View>
   );
 };
