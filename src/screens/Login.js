@@ -1,33 +1,107 @@
-import { StyleSheet, Image, View, Text, TextInput } from 'react-native';
-import React from 'react';
+import { StyleSheet, Image, View, Text, TextInput, Pressable } from 'react-native';
+import React, { useState } from 'react';
 import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../utils/index';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+  withTiming,
+  withDelay,
+  runOnJS,
+  withSequence,
+  withSpring,
+} from 'react-native-reanimated';
 
 const Login = () => {
+  const imagePosition = useSharedValue(1);
+  const formButtonScale = useSharedValue(1);
+
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    const interpolation = interpolate(imagePosition.value, [0, 1], [-WINDOW_HEIGHT / 2, 0]);
+    return {
+      transform: [{ translateY: withTiming(interpolation, { duration: 1000 }) }],
+    };
+  });
+
+  const buttonAnimatedStyle = useAnimatedStyle(() => {
+    const interpolation = interpolate(imagePosition.value, [0, 1], [250, 0]);
+    return {
+      opacity: withTiming(imagePosition.value, { duration: 300 }),
+      transform: [{ translateY: withTiming(interpolation, { duration: 1000 }) }],
+    };
+  });
+
+  const closebuttonAnimatedStyle = useAnimatedStyle(() => {
+    const interpolation = interpolate(imagePosition.value, [0, 1], [180, 360]);
+    return {
+      opacity: withTiming(imagePosition.value === 1 ? 0 : 1, { duration: 300 }),
+      transform: [{ rotate: withTiming(interpolation + 'deg', { duration: 1000 }) }],
+    };
+  });
+
+  const formAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: imagePosition.value === 0 ? withDelay(400, withTiming(1, { duration: 800 })) : withTiming(0, { duration: 300 }),
+    };
+  });
+
+  const formButtonAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: formButtonScale.value }],
+    };
+  });
+
+  const loginHandler = () => {
+    imagePosition.value = 0;
+    if (isRegistering) {
+      runOnJS(setIsRegistering)(false);
+    }
+  };
+
+  const registerHandler = () => {
+    imagePosition.value = 0;
+    if (!isRegistering) {
+      runOnJS(setIsRegistering)(true);
+    }
+  };
+
+  const xButtonHandler = () => {
+    imagePosition.value = 1;
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={StyleSheet.absoluteFill}>
+    <Animated.View style={styles.container}>
+      <Animated.View style={[StyleSheet.absoluteFill, imageAnimatedStyle]}>
         <Image source={require('../images/back.png')} style={styles.image}></Image>
-        <View style={styles.closeButtonContainer}>
-          <Text>X</Text>
-        </View>
-      </View>
+        <Animated.View style={[styles.closeButtonContainer, closebuttonAnimatedStyle]}>
+          <Text onPress={xButtonHandler}>X</Text>
+        </Animated.View>
+      </Animated.View>
       <View style={styles.bottomContainer}>
-        {/* <View style={styles.button}>
-          <Text style={styles.buttonText}>Sign in</Text>
-        </View>
-        <View style={styles.button}>
-          <Text style={styles.buttonText}>Sign up</Text>
-        </View> */}
-        <View style={styles.formInputContainer}>
+        <Animated.View style={buttonAnimatedStyle}>
+          <Pressable style={styles.button} onPress={loginHandler}>
+            <Text style={styles.buttonText}>Sign in</Text>
+          </Pressable>
+        </Animated.View>
+        <Animated.View style={buttonAnimatedStyle}>
+          <Pressable style={styles.button} onPress={registerHandler}>
+            <Text style={styles.buttonText}>Sign up</Text>
+          </Pressable>
+        </Animated.View>
+        <Animated.View style={[styles.formInputContainer, formAnimatedStyle]}>
           <TextInput placeholder="Email..." placeholderTextColor="black" style={styles.textInput}></TextInput>
-          <TextInput placeholder="Name..." placeholderTextColor="black" style={styles.textInput}></TextInput>
+          {isRegistering && <TextInput placeholder="Name..." placeholderTextColor="black" style={styles.textInput}></TextInput>}
           <TextInput placeholder="Password..." placeholderTextColor="black" style={styles.textInput}></TextInput>
-          <View style={styles.formButton}>
-            <Text style={styles.buttonText}>LOG IN</Text>
-          </View>
-        </View>
+          <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
+            <Pressable onPress={() => (formButtonScale.value = withSequence(withSpring(1.5), withSpring(1)))}>
+              <Text style={styles.buttonText}>{isRegistering ? 'REGISTER' : 'LOG IN'}</Text>
+            </Pressable>
+          </Animated.View>
+        </Animated.View>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -41,7 +115,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: WINDOW_WIDTH,
-    height: WINDOW_HEIGHT / 2,
+    height: WINDOW_HEIGHT + 100,
   },
   button: {
     backgroundColor: 'rgba(123,104,238,0.8)',
@@ -96,6 +170,9 @@ const styles = StyleSheet.create({
   },
   formInputContainer: {
     marginBottom: 70,
+    ...StyleSheet.absoluteFill,
+    zIndex: -1,
+    justifyContent: 'center',
   },
   closeButtonContainer: {
     height: 40,
@@ -113,6 +190,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     borderRadius: 20,
-    marginTop: 5,
+    top: -20,
   },
 });

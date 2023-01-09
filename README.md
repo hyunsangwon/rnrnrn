@@ -4,7 +4,7 @@
 
     1. npm install -g expo-cli
     2. npm install
-    3. npx expo start
+    3. npx expo start or npx expo start --clear (reset cache)
 
 ### Building
 
